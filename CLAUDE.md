@@ -38,7 +38,9 @@ extraction, Meilisearch indexing with scheduled refresh, and four MCP tools
 │   ├── ContentSource.java / SourceType.java # typed, declarative source model (website|git)
 │   ├── ContentSourceProperties.java         # @ConfigurationProperties("open-elements.content")
 │   ├── UrlMatcher.java                      # Ant-glob include/exclude matching against URL paths
-│   └── ContentLocaleResolver.java           # path-prefix locale rule (/de -> German, else English)
+│   ├── ContentLocaleResolver.java           # path-prefix locale rule (/de -> German, else English)
+│   ├── DiscoveredItem.java                  # a discovered URL + lastmod change marker
+│   └── SitemapCrawler.java                  # sitemap/index discovery + bounded fallback crawl
 ├── src/main/resources/application.yaml      # datasource, JPA, OAuth2, MCP, Meilisearch, content config
 ├── src/test/java/com/openelements/content/  # behavior tests (context, MCP enabled/disabled, search-down, jsoup)
 └── docs/
@@ -68,7 +70,10 @@ each source's Ant-glob `urlInclude`/`urlExclude` against URL paths; the typed `C
 `ContentDocument` is the canonical shape of one indexed page (stable `id` = sanitized source +
 SHA-256 of the URL; `toMap()` for indexing); `ContentConfig` registers the Meilisearch
 `IndexSettings` bean (searchable `title>excerpt>body`, filterable by source/locale/author/categories/date,
-sortable by date), which the library's initializer applies to the index at startup.
+sortable by date), which the library's initializer applies to the index at startup. `SitemapCrawler`
+(the first stage of the ingestion pipeline) discovers a source's URLs from its sitemaps (recursing
+into sitemap indexes) — or, when none are configured, via a bounded same-host fallback crawl — and
+returns `DiscoveredItem`s filtered by `UrlMatcher`; it is fault-tolerant per sitemap.
 
 > **Key gotcha:** the library ships no Spring Boot auto-configuration and couples MCP to a JPA
 > datasource, so `@Import({ McpConfiguration, SearchConfig })` alone does **not** boot. See
