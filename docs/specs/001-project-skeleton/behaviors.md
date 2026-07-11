@@ -8,9 +8,16 @@
 - **Then** the Spring context initializes without errors and the app reports healthy
 
 ### /mcp endpoint is exposed
-- **Given** the running application with `openelements.mcp.auth.api-key.enabled=false`
-- **When** an MCP client connects to `/mcp` (streamable HTTP)
-- **Then** the MCP server responds and advertises the configured `server-name`/`server-version` with an empty content-tool catalog (no content tools registered yet)
+- **Given** the running application with `openelements.mcp.enabled=true`
+- **When** the context is inspected
+- **Then** the MCP server is configured — the streamable-HTTP transport provider that registers the `/mcp` route and the `McpSyncServer` bean are present, the server advertises the configured `server-name`/`server-version`, and no content-tool providers are registered yet (empty content-tool catalog)
+
+> **Note (verified during implementation):** the `/mcp` route is always secured by the library.
+> With `openelements.mcp.auth.api-key.enabled=false` the MCP api-key filter chain is skipped and
+> `/mcp` falls under the library's default (JWT) chain (`anyRequest().authenticated()`), so an
+> unauthenticated HTTP request returns `401` regardless of whether the route exists. Because HTTP
+> status therefore cannot distinguish an exposed endpoint from a missing one, exposure is asserted at
+> the bean level. An authenticated round-trip against `/mcp` is covered by spec 013 (auth).
 
 ### Scheduling is enabled
 - **Given** the running application

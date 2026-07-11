@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: content-mcp
+  datasource:
+    # spring-services requires a datasource for its JPA-backed api-key/user stack, which the MCP
+    # server depends on. The content MCP keeps no relational state of its own; this in-memory H2
+    # instance backs only the library's tables. Override with a persistent DB for production if the
+    # library's api-key/user data must survive restarts.
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:content-mcp;DB_CLOSE_DELAY=-1;MODE=PostgreSQL}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # The library's SecurityConfig wires an OAuth2 resource server on the default (non-MCP)
+          # filter chain, so a JwtDecoder must exist. A jwk-set-uri yields a lazily-initialized
+          # decoder (no network call at startup). The content MCP is reached via /mcp (api-key auth,
+          # spec 013), so this JWT path is dormant; point it at the real IdP in production.
+          jwk-set-uri: ${OAUTH2_JWK_SET_URI:http://localhost:9999/.well-known/jwks.json}
+
+openelements:
+  mcp:
+    enabled: true
+    server-name: "Open Elements Content MCP"
+    server-version: "0.1.0"
+    auth:
+      api-key:
+        enabled: false        # dev only; real auth handled in spec 013
+  meilisearch:
+    enabled: true
+    host: ${MEILISEARCH_HOST:http://localhost:7700}
+    master-key: ${MEILISEARCH_MASTER_KEY:}
+    index-prefix: ${MEILISEARCH_INDEX_PREFIX:content_}
+
+open-elements:
+  content:
+    enabled: true
+    # sources: []   # filled in by spec 002
