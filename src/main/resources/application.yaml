@@ -41,4 +41,16 @@ openelements:
 open-elements:
   content:
     enabled: true
-    # sources: []   # filled in by spec 002
+    refresh-cron: "0 0 * * * *"
+    user-agent: "OpenElementsContentBot/1.0 (+https://open-elements.com)"
+    rate-limit-per-host: 2
+    request-timeout: 10s
+    max-body-bytes: 5MB
+    sources:
+      - id: open-elements
+        type: website
+        base-url: https://open-elements.com
+        sitemaps: [ /en/sitemap.xml, /de/sitemap.xml ]
+        url-include: [ "/posts/**", "/de/posts/**" ]
+        content-selector: "article"
+        enabled: true
