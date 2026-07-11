@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.modelcontextprotocol.server.McpSyncServer;
 import io.modelcontextprotocol.server.transport.WebMvcStreamableServerTransportProvider;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,12 +19,14 @@ import org.springframework.context.ApplicationContext;
  * <p>Covers behavior: "MCP disabled".
  */
 @SpringBootTest(properties = "openelements.mcp.enabled=false")
+@DisplayName("MCP disabled")
 class McpDisabledTest {
 
     @Autowired
     private ApplicationContext context;
 
     @Test
+    @DisplayName("no MCP server or transport beans are created, so /mcp is not exposed")
     void noMcpServerBeansAreCreated() {
         assertThat(context.getBeansOfType(McpSyncServer.class)).isEmpty();
         assertThat(context.getBeansOfType(WebMvcStreamableServerTransportProvider.class)).isEmpty();

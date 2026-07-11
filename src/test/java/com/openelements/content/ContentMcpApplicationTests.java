@@ -6,6 +6,7 @@ import com.openelements.spring.base.mcp.McpProperties;
 import com.openelements.spring.base.mcp.McpToolProvider;
 import io.modelcontextprotocol.server.McpSyncServer;
 import io.modelcontextprotocol.server.transport.WebMvcStreamableServerTransportProvider;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,22 +31,26 @@ import org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProc
  * {@link McpDisabledTest} for the disabled case.
  */
 @SpringBootTest(properties = "openelements.mcp.auth.api-key.enabled=false")
+@DisplayName("Content MCP application skeleton")
 class ContentMcpApplicationTests {
 
     @Autowired
     private ApplicationContext context;
 
     @Test
+    @DisplayName("the Spring context initializes with the imported library configs")
     void contextLoads() {
         assertThat(context).isNotNull();
     }
 
     @Test
+    @DisplayName("ContentConfig is component-scanned and registered as a bean")
     void contentConfigIsComponentScanned() {
         assertThat(context.getBean(ContentConfig.class)).isNotNull();
     }
 
     @Test
+    @DisplayName("scheduling is enabled so later @Scheduled beans will run")
     void schedulingIsEnabled() {
         // @EnableScheduling registers this post-processor; its presence proves scheduling is active
         // so later @Scheduled beans (spec 010) will run.
@@ -53,6 +58,7 @@ class ContentMcpApplicationTests {
     }
 
     @Test
+    @DisplayName("the /mcp server is exposed, advertises server name/version, and has no content tools yet")
     void mcpEndpointIsExposedWithEmptyContentToolCatalog() {
         McpSyncServer mcpServer = context.getBean(McpSyncServer.class);
         assertThat(mcpServer).isNotNull();
