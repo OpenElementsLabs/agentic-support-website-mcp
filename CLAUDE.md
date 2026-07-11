@@ -33,7 +33,11 @@ extraction, Meilisearch indexing with scheduled refresh, and four MCP tools
 ├── pom.xml                                  # Maven build; parent, spring-services, jsoup, H2
 ├── src/main/java/com/openelements/content/
 │   ├── ContentMcpApplication.java           # entry point; imports library configs, enables scheduling
-│   └── ContentConfig.java                   # empty @Configuration placeholder for later specs
+│   ├── ContentConfig.java                   # @Configuration; enables ContentSourceProperties
+│   ├── ContentSource.java / SourceType.java # typed, declarative source model (website|git)
+│   ├── ContentSourceProperties.java         # @ConfigurationProperties("open-elements.content")
+│   ├── UrlMatcher.java                      # Ant-glob include/exclude matching against URL paths
+│   └── ContentLocaleResolver.java           # path-prefix locale rule (/de -> German, else English)
 ├── src/main/resources/application.yaml      # datasource, JPA, OAuth2, MCP, Meilisearch, content config
 ├── src/test/java/com/openelements/content/  # behavior tests (context, MCP enabled/disabled, search-down, jsoup)
 └── docs/
@@ -56,7 +60,10 @@ building blocks it needs rather than the whole platform:
   entity/repository scanning of `com.openelements.spring.base` and supplies an embedded H2 datasource.
 
 All new content code lives under `com.openelements.content`. `ContentConfig` is the wiring point that
-later specs extend.
+later specs extend. Content sources are configured declaratively under `open-elements.content.sources`
+(bound to `ContentSourceProperties`) — a new source is one YAML entry, no code. `UrlMatcher` applies
+each source's Ant-glob `urlInclude`/`urlExclude` against URL paths; the typed `ContentSource`
+(`website`|`git`) keeps the pipeline open to Git sources (spec 016) without reworking the config.
 
 > **Key gotcha:** the library ships no Spring Boot auto-configuration and couples MCP to a JPA
 > datasource, so `@Import({ McpConfiguration, SearchConfig })` alone does **not** boot. See
