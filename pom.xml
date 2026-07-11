@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.open-elements</groupId>
+        <artifactId>java-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <groupId>com.open-elements</groupId>
+    <artifactId>content-mcp</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Open Elements Content MCP</name>
+    <description>MCP server that crawls, indexes, and makes searchable the content of Open-Elements-adjacent websites</description>
+
+    <properties>
+        <spring-services.version>1.3.0-SNAPSHOT</spring-services.version>
+        <jsoup.version>1.18.3</jsoup.version>
+    </properties>
+
+    <repositories>
+        <!-- spring-services 1.3.x is published as a SNAPSHOT to the Central Portal
+             snapshot repository; needed so CI (and fresh checkouts) can resolve it. -->
+        <repository>
+            <id>central-portal-snapshots</id>
+            <name>Central Portal Snapshots</name>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.open-elements</groupId>
+            <artifactId>spring-services</artifactId>
+            <version>${spring-services.version}</version>
+        </dependency>
+
+        <!-- HTML parsing / content extraction (used from spec 006 on). -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>${jsoup.version}</version>
+        </dependency>
+
+        <!-- Embedded in-memory database. spring-services pulls in spring-boot-starter-data-jpa
+             non-optionally and its MCP server requires the JPA-backed api-key/user stack, so a
+             datasource must exist for the context to start. The content MCP keeps no relational
+             state of its own; H2 in-memory backs only the library's api-key/user tables. -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
