@@ -6,7 +6,7 @@ roadmap step, to be implemented sequentially (each builds on the previous).
 
 | ID  | Spec-Folder | Name | Areas | Description | GitHub Issue | Status |
 |-----|-------------|------|-------|-------------|--------------|--------|
-| 001 | 001-project-skeleton | Project skeleton | build, architecture, mcp | Standalone Spring Boot app that pulls in `spring-services` and imports its MCP + search config | #1 | in progress |
+| 001 | 001-project-skeleton | Project skeleton | build, architecture, mcp | Standalone Spring Boot app that pulls in `spring-services` and imports its MCP + search config | #1 | done |
 | 002 | 002-content-source-config | Content source config | backend, architecture, configuration | `ContentSource` abstraction + `@ConfigurationProperties` + Ant-glob URL matching | — | open |
 | 003 | 003-content-document-index | Content document & index | backend, search, data-model | `ContentDocument` record + Meilisearch `IndexSettings` bean | — | open |
 | 004 | 004-sitemap-crawler | Sitemap crawler | backend, crawler | `SitemapCrawler` — sitemap discovery of URLs + lastmod | — | open |
