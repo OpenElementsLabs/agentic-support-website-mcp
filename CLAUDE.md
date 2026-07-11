@@ -33,7 +33,8 @@ extraction, Meilisearch indexing with scheduled refresh, and four MCP tools
 ├── pom.xml                                  # Maven build; parent, spring-services, jsoup, H2
 ├── src/main/java/com/openelements/content/
 │   ├── ContentMcpApplication.java           # entry point; imports library configs, enables scheduling
-│   ├── ContentConfig.java                   # @Configuration; enables ContentSourceProperties
+│   ├── ContentConfig.java                   # @Configuration; ContentSourceProperties + IndexSettings bean
+│   ├── ContentDocument.java                 # canonical indexed-document record (id() + toMap())
 │   ├── ContentSource.java / SourceType.java # typed, declarative source model (website|git)
 │   ├── ContentSourceProperties.java         # @ConfigurationProperties("open-elements.content")
 │   ├── UrlMatcher.java                      # Ant-glob include/exclude matching against URL paths
@@ -64,6 +65,10 @@ later specs extend. Content sources are configured declaratively under `open-ele
 (bound to `ContentSourceProperties`) — a new source is one YAML entry, no code. `UrlMatcher` applies
 each source's Ant-glob `urlInclude`/`urlExclude` against URL paths; the typed `ContentSource`
 (`website`|`git`) keeps the pipeline open to Git sources (spec 016) without reworking the config.
+`ContentDocument` is the canonical shape of one indexed page (stable `id` = sanitized source +
+SHA-256 of the URL; `toMap()` for indexing); `ContentConfig` registers the Meilisearch
+`IndexSettings` bean (searchable `title>excerpt>body`, filterable by source/locale/author/categories/date,
+sortable by date), which the library's initializer applies to the index at startup.
 
 > **Key gotcha:** the library ships no Spring Boot auto-configuration and couples MCP to a JPA
 > datasource, so `@Import({ McpConfiguration, SearchConfig })` alone does **not** boot. See
