@@ -52,7 +52,14 @@ public record ContentDocument(
 Primary key = stable hash of `source + url` (design §4). Use a deterministic hash (e.g.
 SHA-256 hex, or a readable `source:path` form). Meilisearch primary keys allow
 `[A-Za-z0-9_-]`, so a hex digest or sanitized slug is required — a raw URL is **not** a valid
-primary key. Decision: `id = source + ":" + sha256Hex(url)` (readable prefix + safe digest).
+primary key.
+
+> **Correction (during implementation):** the originally proposed `id = source + ":" + sha256Hex(url)`
+> is itself invalid — `:` is **not** in the allowed set `[A-Za-z0-9_-]`, and a `source` id could in
+> principle contain other disallowed characters. Actual decision:
+> **`id = sanitize(source) + "_" + sha256Hex(url)`**, where `sanitize` replaces any character
+> outside `[A-Za-z0-9_-]` with `_`. This keeps a readable source prefix, uses a legal separator, and
+> guarantees a valid key. Verified by `ContentDocumentTest`.
 
 ### `ContentIndexSettings` (`@Bean IndexSettings`)
 
