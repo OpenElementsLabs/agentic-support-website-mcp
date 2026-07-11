@@ -36,7 +36,8 @@ extraction, Meilisearch indexing with scheduled refresh, and four MCP tools
 │   ├── ContentConfig.java                   # @Configuration; enables ContentSourceProperties
 │   ├── ContentSource.java / SourceType.java # typed, declarative source model (website|git)
 │   ├── ContentSourceProperties.java         # @ConfigurationProperties("open-elements.content")
-│   └── UrlMatcher.java                      # Ant-glob include/exclude matching against URL paths
+│   ├── UrlMatcher.java                      # Ant-glob include/exclude matching against URL paths
+│   └── ContentLocaleResolver.java           # path-prefix locale rule (/de -> German, else English)
 ├── src/main/resources/application.yaml      # datasource, JPA, OAuth2, MCP, Meilisearch, content config
 ├── src/test/java/com/openelements/content/  # behavior tests (context, MCP enabled/disabled, search-down, jsoup)
 └── docs/

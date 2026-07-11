@@ -42,6 +42,19 @@
 
 ---
 
+## Step 3b: `LocaleResolver` (locale derivation)
+
+- [x] `@Component` implementing the design's simple path-prefix rule: a path under `/de` is German, otherwise English
+- [x] Extensible behind a small component (exact shape is an open question; revisited in specs 006/007)
+
+**Acceptance criteria:**
+- [x] Rule verified by unit tests (including the `/design` substring guard)
+- [x] Project builds successfully
+
+**Related behaviors:** none in `behaviors.md` — this is a design element (roadmap step 2 lists "locale derivation"); tested directly against the design-specified rule.
+
+---
+
 ## Step 4: Configuration
 
 - [x] Bind the example OE source + global settings in `application.yaml`
@@ -57,6 +70,7 @@
 
 - [x] `UrlMatcherTest` — include, single-segment star, page-plus-subpages, exclude-wins, default include, scheme/host/query stripping
 - [x] `ContentSourcePropertiesTest` — binding, url-include default, disabled source, global defaults, global overrides
+- [x] `LocaleResolverTest` — `/de` German, others English, `/design` substring guard
 
 **Acceptance criteria:**
 - [x] All tests pass (`mvn test`)
