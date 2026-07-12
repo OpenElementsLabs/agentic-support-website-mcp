@@ -49,7 +49,11 @@ extraction, Meilisearch indexing with scheduled refresh, and four MCP tools
 │   ├── ContentSourceStrategy.java           # per-source-type discover/fetch seam
 │   ├── WebsiteSourceStrategy.java           # website strategy: crawler + fetcher + extractor
 │   ├── FetchOutcome.java                    # INDEX/UNCHANGED/DELETE/SKIP + optional document
-│   └── SourceStrategyRegistry.java          # selects a strategy by ContentSource.type()
+│   ├── SourceStrategyRegistry.java          # selects a strategy by ContentSource.type()
+│   ├── ContentIndexer.java                  # orchestrates discover→diff→fetch→upsert/delete
+│   ├── IndexReport.java                     # per-pass counters
+│   ├── ContentIndexStore.java               # index read/write seam (StoredDocument)
+│   └── MeilisearchContentIndexStore.java    # ContentIndexStore backed by MeilisearchClient
 ├── src/main/resources/application.yaml      # datasource, JPA, OAuth2, MCP, Meilisearch, content config
 ├── src/test/java/com/openelements/content/  # behavior tests (context, MCP enabled/disabled, search-down, jsoup)
 └── docs/
@@ -95,7 +99,13 @@ categories/preview image/locale) from OpenGraph/Article `<meta>`, JSON-LD, and `
 wires crawler → fetcher → extractor and maps the fetch result to a `FetchOutcome`
 (`INDEX`/`UNCHANGED`/`DELETE`/`SKIP`); `SourceStrategyRegistry` selects the strategy by
 `ContentSource.type()`, so a future `git` strategy (spec 016) plugs in as a bean with no indexer
-changes.
+changes. `ContentIndexer` is the orchestration engine: discover → diff discovered `lastmod` against
+the state read from the index (`ContentIndexStore`; the index *is* the state) → fetch only new/changed
+items via the strategy → batch-upsert, and delete documents that 404 or vanished from discovery.
+`MeilisearchContentIndexStore` implements the store over `MeilisearchClient` (paged `multiSearch` to
+read state, `addDocuments`+`waitForTask` to upsert, `deleteDocument`), since the library's
+`BatchWriter` is package-private. The indexer is the reusable engine for the bootstrap step (009) and
+refresh scheduler (010).
 
 > **Key gotcha:** the library ships no Spring Boot auto-configuration and couples MCP to a JPA
 > datasource, so `@Import({ McpConfiguration, SearchConfig })` alone does **not** boot. See
