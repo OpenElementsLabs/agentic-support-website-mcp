@@ -13,9 +13,10 @@ import org.springframework.context.annotation.Configuration;
  *
  * <p>Enables {@link ContentSourceProperties} binding and is component-scanned together with the rest
  * of the {@code com.openelements.content} package (e.g. {@link UrlMatcher},
- * {@link ContentLocaleResolver}). It also declares the Meilisearch {@link IndexSettings} for the
- * content index. Later specs extend it with further {@code @Bean} definitions (crawler, indexer,
- * search service, MCP tools).
+ * {@link ContentLocaleResolver}, {@link SitemapCrawler}, {@link PageFetcher}). It also declares the
+ * Meilisearch {@link IndexSettings} for the content index. The HTTP client and rate limiter used by
+ * {@link PageFetcher} live in {@link ContentHttpConfig}. Later specs extend it with further
+ * {@code @Bean} definitions (indexer, search service, MCP tools).
  */
 @Configuration
 @EnableConfigurationProperties(ContentSourceProperties.class)

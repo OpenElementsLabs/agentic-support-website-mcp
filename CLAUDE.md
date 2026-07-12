@@ -34,6 +34,9 @@ extraction, Meilisearch indexing with scheduled refresh, and four MCP tools
 ├── src/main/java/com/openelements/content/
 │   ├── ContentMcpApplication.java           # entry point; imports library configs, enables scheduling
 │   ├── ContentConfig.java                   # @Configuration; ContentSourceProperties + IndexSettings bean
+│   ├── ContentHttpConfig.java               # timeout-configured RestClient + HostRateLimiter beans
+│   ├── PageFetcher.java / FetchResult.java  # robust HTTP GET (conditional, capped, retrying)
+│   ├── HostRateLimiter.java                 # per-host request throttle (injectable clock/sleeper)
 │   ├── ContentDocument.java                 # canonical indexed-document record (id() + toMap())
 │   ├── ContentSource.java / SourceType.java # typed, declarative source model (website|git)
 │   ├── ContentSourceProperties.java         # @ConfigurationProperties("open-elements.content")
@@ -73,7 +76,11 @@ SHA-256 of the URL; `toMap()` for indexing); `ContentConfig` registers the Meili
 sortable by date), which the library's initializer applies to the index at startup. `SitemapCrawler`
 (the first stage of the ingestion pipeline) discovers a source's URLs from its sitemaps (recursing
 into sitemap indexes) — or, when none are configured, via a bounded same-host fallback crawl — and
-returns `DiscoveredItem`s filtered by `UrlMatcher`; it is fault-tolerant per sitemap.
+returns `DiscoveredItem`s filtered by `UrlMatcher`; it is fault-tolerant per sitemap. `PageFetcher`
+(the fetch stage) performs polite HTTP GETs — bot `User-Agent`, conditional `If-None-Match`/
+`If-Modified-Since` (→ `304` handling), a `max-body-bytes` cap, per-host rate limiting
+(`HostRateLimiter`), and retry-with-backoff on transient failures — returning a classified
+`FetchResult` (`OK`/`NOT_MODIFIED`/`NOT_FOUND`/`ERROR`).
 
 > **Key gotcha:** the library ships no Spring Boot auto-configuration and couples MCP to a JPA
 > datasource, so `@Import({ McpConfiguration, SearchConfig })` alone does **not** boot. See
