@@ -54,7 +54,8 @@ extraction, Meilisearch indexing with scheduled refresh, and four MCP tools
 │   ├── IndexReport.java                     # per-pass counters
 │   ├── ContentIndexStore.java               # index read/write seam (StoredDocument)
 │   ├── MeilisearchContentIndexStore.java    # ContentIndexStore backed by MeilisearchClient
-│   └── ContentBootstrapStep.java            # SearchIndexBootstrapStep: startup full reindex
+│   ├── ContentBootstrapStep.java            # SearchIndexBootstrapStep: startup full reindex
+│   └── ContentRefreshScheduler.java         # @Scheduled incremental re-crawl (cron, guarded)
 ├── src/main/resources/application.yaml      # datasource, JPA, OAuth2, MCP, Meilisearch, content config
 ├── src/test/java/com/openelements/content/  # behavior tests (context, MCP enabled/disabled, search-down, jsoup)
 └── docs/
@@ -109,7 +110,10 @@ read state, `addDocuments`+`waitForTask` to upsert, `deleteDocument`), since the
 refresh scheduler (010). `ContentBootstrapStep` implements the library's `SearchIndexBootstrapStep`:
 at startup the library's `MeilisearchBootstrapRunner` discovers it, consumes its lazy `documents()`
 stream (over all enabled sources, via `ContentIndexer.streamAllDocuments`) in batches into Meilisearch,
-and toggles `SearchReadinessState`.
+and toggles `SearchReadinessState`. `ContentRefreshScheduler` is a `@Scheduled` bean (cron
+`open-elements.content.refresh-cron`, default hourly, from `@EnableScheduling` in spec 001) that
+re-runs `ContentIndexer.indexSource` over enabled sources — guarded to skip while disabled or
+bootstrapping and to never overlap, with per-source fault isolation.
 
 > **Key gotcha:** the library ships no Spring Boot auto-configuration and couples MCP to a JPA
 > datasource, so `@Import({ McpConfiguration, SearchConfig })` alone does **not** boot. See
