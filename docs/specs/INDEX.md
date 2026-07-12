@@ -11,7 +11,7 @@ roadmap step, to be implemented sequentially (each builds on the previous).
 | 003 | 003-content-document-index | Content document & index | backend, search, data-model | `ContentDocument` record + Meilisearch `IndexSettings` bean | #5 | done |
 | 004 | 004-sitemap-crawler | Sitemap crawler | backend, crawler | `SitemapCrawler` — sitemap discovery of URLs + lastmod | #7 | done |
 | 005 | 005-page-fetcher | Page fetcher | backend, crawler | `PageFetcher` — robust HTTP fetch (ETag/IMS, rate limit, retry) | #9 | done |
-| 006 | 006-content-extractor | Content extractor | backend, crawler | `ContentExtractor` — jsoup content + metadata extraction | — | open |
+| 006 | 006-content-extractor | Content extractor | backend, crawler | `ContentExtractor` — jsoup content + metadata extraction | #11 | in progress |
 | 007 | 007-source-strategy | Source strategy | backend, architecture | `ContentSourceStrategy` interface + `WebsiteSourceStrategy` | — | open |
 | 008 | 008-content-indexer | Content indexer | backend, search, crawler | `ContentIndexer` — orchestration, diff, upsert/delete | — | open |
 | 009 | 009-content-bootstrap-step | Content bootstrap step | backend, search | `ContentBootstrapStep` — initial reindex via `SearchIndexBootstrapStep` | — | open |
