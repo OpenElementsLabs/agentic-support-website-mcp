@@ -55,7 +55,8 @@ extraction, Meilisearch indexing with scheduled refresh, and four MCP tools
 │   ├── ContentIndexStore.java               # index read/write seam (StoredDocument)
 │   ├── MeilisearchContentIndexStore.java    # ContentIndexStore backed by MeilisearchClient
 │   ├── ContentBootstrapStep.java            # SearchIndexBootstrapStep: startup full reindex
-│   └── ContentRefreshScheduler.java         # @Scheduled incremental re-crawl (cron, guarded)
+│   ├── ContentRefreshScheduler.java         # @Scheduled incremental re-crawl (cron, guarded)
+│   └── ContentSearchService.java            # read facade: multiSearch + Highlighter (+ result records)
 ├── src/main/resources/application.yaml      # datasource, JPA, OAuth2, MCP, Meilisearch, content config
 ├── src/test/java/com/openelements/content/  # behavior tests (context, MCP enabled/disabled, search-down, jsoup)
 └── docs/
@@ -113,7 +114,11 @@ stream (over all enabled sources, via `ContentIndexer.streamAllDocuments`) in ba
 and toggles `SearchReadinessState`. `ContentRefreshScheduler` is a `@Scheduled` bean (cron
 `open-elements.content.refresh-cron`, default hourly, from `@EnableScheduling` in spec 001) that
 re-runs `ContentIndexer.indexSource` over enabled sources — guarded to skip while disabled or
-bootstrapping and to never overlap, with per-source fault isolation.
+bootstrapping and to never overlap, with per-source fault isolation. On the read side,
+`ContentSearchService` is the facade the MCP tools (spec 012) call: it builds Meilisearch
+`multi-search` bodies (AND-combined `source`/`locale`/`categories`/`since` filters, `publishedDate:desc`
+tie-breaker, `Highlighter` boundary markers) and returns `SearchHit`s with HTML-safe snippets, plus
+`listPosts`, `getByUrlOrId`, and `categoryFacets`. Read-only; the scoped key comes in spec 013.
 
 > **Key gotcha:** the library ships no Spring Boot auto-configuration and couples MCP to a JPA
 > datasource, so `@Import({ McpConfiguration, SearchConfig })` alone does **not** boot. See
