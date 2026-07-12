@@ -15,7 +15,7 @@ roadmap step, to be implemented sequentially (each builds on the previous).
 | 007 | 007-source-strategy | Source strategy | backend, architecture | `ContentSourceStrategy` interface + `WebsiteSourceStrategy` | #13 | done |
 | 008 | 008-content-indexer | Content indexer | backend, search, crawler | `ContentIndexer` — orchestration, diff, upsert/delete | #15 | done |
 | 009 | 009-content-bootstrap-step | Content bootstrap step | backend, search | `ContentBootstrapStep` — initial reindex via `SearchIndexBootstrapStep` | #17 | done |
-| 010 | 010-content-refresh-scheduler | Content refresh scheduler | backend, scheduling | `ContentRefreshScheduler` — `@Scheduled` incremental re-crawl | — | open |
+| 010 | 010-content-refresh-scheduler | Content refresh scheduler | backend, scheduling | `ContentRefreshScheduler` — `@Scheduled` incremental re-crawl | #19 | in progress |
 | 011 | 011-content-search-service | Content search service | backend, search | `ContentSearchService` — `multiSearch` + highlighting facade | — | open |
 | 012 | 012-content-mcp-tools | Content MCP tools | backend, mcp, api | `ContentMcpToolProvider` — the 4 MCP tools | — | open |
 | 013 | 013-scoped-search-key | Scoped search key | backend, search, security | Read-only scoped Meilisearch key for the content index | — | open |
