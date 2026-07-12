@@ -43,7 +43,9 @@ extraction, Meilisearch indexing with scheduled refresh, and four MCP tools
 │   ├── UrlMatcher.java                      # Ant-glob include/exclude matching against URL paths
 │   ├── ContentLocaleResolver.java           # path-prefix locale rule (/de -> German, else English)
 │   ├── DiscoveredItem.java                  # a discovered URL + lastmod change marker
-│   └── SitemapCrawler.java                  # sitemap/index discovery + bounded fallback crawl
+│   ├── SitemapCrawler.java                  # sitemap/index discovery + bounded fallback crawl
+│   ├── ContentExtractor.java                # jsoup body + metadata extraction
+│   └── ExtractedContent.java                # extractor output (body + metadata)
 ├── src/main/resources/application.yaml      # datasource, JPA, OAuth2, MCP, Meilisearch, content config
 ├── src/test/java/com/openelements/content/  # behavior tests (context, MCP enabled/disabled, search-down, jsoup)
 └── docs/
@@ -80,7 +82,11 @@ returns `DiscoveredItem`s filtered by `UrlMatcher`; it is fault-tolerant per sit
 (the fetch stage) performs polite HTTP GETs — bot `User-Agent`, conditional `If-None-Match`/
 `If-Modified-Since` (→ `304` handling), a `max-body-bytes` cap, per-host rate limiting
 (`HostRateLimiter`), and retry-with-backoff on transient failures — returning a classified
-`FetchResult` (`OK`/`NOT_MODIFIED`/`NOT_FOUND`/`ERROR`).
+`FetchResult` (`OK`/`NOT_MODIFIED`/`NOT_FOUND`/`ERROR`). `ContentExtractor` (the extract stage) turns
+fetched HTML into an `ExtractedContent` via jsoup: it selects the main container by the source's
+`contentSelector` (with a readability fallback), always strips scripts/styles, applies
+`contentExclude`, whitespace-normalizes the body, and reads metadata (title/excerpt/date/author/
+categories/preview image/locale) from OpenGraph/Article `<meta>`, JSON-LD, and `<time>`.
 
 > **Key gotcha:** the library ships no Spring Boot auto-configuration and couples MCP to a JPA
 > datasource, so `@Import({ McpConfiguration, SearchConfig })` alone does **not** boot. See
