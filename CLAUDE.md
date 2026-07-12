@@ -45,7 +45,11 @@ extraction, Meilisearch indexing with scheduled refresh, and four MCP tools
 │   ├── DiscoveredItem.java                  # a discovered URL + lastmod change marker
 │   ├── SitemapCrawler.java                  # sitemap/index discovery + bounded fallback crawl
 │   ├── ContentExtractor.java                # jsoup body + metadata extraction
-│   └── ExtractedContent.java                # extractor output (body + metadata)
+│   ├── ExtractedContent.java                # extractor output (body + metadata)
+│   ├── ContentSourceStrategy.java           # per-source-type discover/fetch seam
+│   ├── WebsiteSourceStrategy.java           # website strategy: crawler + fetcher + extractor
+│   ├── FetchOutcome.java                    # INDEX/UNCHANGED/DELETE/SKIP + optional document
+│   └── SourceStrategyRegistry.java          # selects a strategy by ContentSource.type()
 ├── src/main/resources/application.yaml      # datasource, JPA, OAuth2, MCP, Meilisearch, content config
 ├── src/test/java/com/openelements/content/  # behavior tests (context, MCP enabled/disabled, search-down, jsoup)
 └── docs/
@@ -87,6 +91,11 @@ fetched HTML into an `ExtractedContent` via jsoup: it selects the main container
 `contentSelector` (with a readability fallback), always strips scripts/styles, applies
 `contentExclude`, whitespace-normalizes the body, and reads metadata (title/excerpt/date/author/
 categories/preview image/locale) from OpenGraph/Article `<meta>`, JSON-LD, and `<time>`.
+`ContentSourceStrategy` is the per-source-type seam that composes these stages: `WebsiteSourceStrategy`
+wires crawler → fetcher → extractor and maps the fetch result to a `FetchOutcome`
+(`INDEX`/`UNCHANGED`/`DELETE`/`SKIP`); `SourceStrategyRegistry` selects the strategy by
+`ContentSource.type()`, so a future `git` strategy (spec 016) plugs in as a bean with no indexer
+changes.
 
 > **Key gotcha:** the library ships no Spring Boot auto-configuration and couples MCP to a JPA
 > datasource, so `@Import({ McpConfiguration, SearchConfig })` alone does **not** boot. See
