@@ -6,7 +6,7 @@ spring:
     # server depends on. The content MCP keeps no relational state of its own; this in-memory H2
     # instance backs only the library's tables. Override with a persistent DB for production if the
     # library's api-key/user data must survive restarts.
-    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:content-mcp;DB_CLOSE_DELAY=-1;MODE=PostgreSQL}
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:content-mcp;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;INIT=CREATE SCHEMA IF NOT EXISTS OE_SPRING_SERVICES}
     username: ${SPRING_DATASOURCE_USERNAME:sa}
     password: ${SPRING_DATASOURCE_PASSWORD:}
     driver-class-name: org.h2.Driver
@@ -14,6 +14,13 @@ spring:
     hibernate:
       ddl-auto: update
     open-in-view: false
+    properties:
+      hibernate:
+        # spring-services' entities live in the OE_SPRING_SERVICES schema; without this Hibernate
+        # tries to CREATE TABLE in a schema it never created (fails on a fresh H2). This makes it
+        # create entity-declared schemas first.
+        hbm2ddl:
+          create_namespaces: true
   security:
     oauth2:
       resourceserver:
