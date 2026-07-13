@@ -63,3 +63,22 @@ open-elements:
         url-include: [ "/posts/**", "/de/posts/**" ]
         content-selector: "article"
         enabled: true
+      # hiero.org has a real /sitemap.xml (flat urlset) listing every /blog/<post>; robots.txt is a
+      # Next.js HTML catch-all (no rules -> allow-all). Posts are wrapped in <main><article>.
+      - id: hiero
+        type: website
+        base-url: https://hiero.org
+        sitemaps: [ /sitemap.xml ]
+        url-include: [ "/blog/**" ]
+        content-selector: "main article"
+        enabled: true
+      # Support & Care is two pages under /en/ (support-care, support-care-maven), listed in
+      # /en/sitemap.xml. They lack a clean article container, so take the <body> minus boilerplate.
+      - id: support-and-care
+        type: website
+        base-url: https://open-elements.com
+        sitemaps: [ /en/sitemap.xml ]
+        url-include: [ "/en/support-care*", "/en/support-care/**" ]
+        content-selector: "body"
+        content-exclude: [ "nav", "header", "footer", ".cookie-banner", "aside" ]
+        enabled: true

@@ -14,9 +14,10 @@ Current state: **Phase 1 complete** (specs 001–014). The app crawls configured
 (sitemap discovery + bounded fallback, robots.txt-aware), fetches politely (conditional GET, per-host
 rate limit, retries), extracts content/metadata with jsoup, indexes into Meilisearch (startup
 bootstrap + scheduled incremental refresh), and exposes four MCP tools on `/mcp` (`search_content`,
-`list_posts`, `get_post`, `list_categories`) backed by a scoped Meilisearch key. Phase 2+ (see
-[`docs/roadmap.md`](docs/roadmap.md)): additional website sources, Git/Markdown sources, and search
-enhancements.
+`list_posts`, `get_post`, `list_categories`) backed by a scoped Meilisearch key. Three website sources are
+configured (spec 015): `open-elements` (`/posts/**`), `hiero` (`/blog/**`), and `support-and-care`
+(`/en/support-care*`). Phase 3+ (see [`docs/roadmap.md`](docs/roadmap.md)): Git/Markdown sources and
+search enhancements.
 
 ### Tech Stack
 
