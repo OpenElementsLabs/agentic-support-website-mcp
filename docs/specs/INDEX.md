@@ -16,7 +16,7 @@ roadmap step, to be implemented sequentially (each builds on the previous).
 | 008 | 008-content-indexer | Content indexer | backend, search, crawler | `ContentIndexer` — orchestration, diff, upsert/delete | #15 | done |
 | 009 | 009-content-bootstrap-step | Content bootstrap step | backend, search | `ContentBootstrapStep` — initial reindex via `SearchIndexBootstrapStep` | #17 | done |
 | 010 | 010-content-refresh-scheduler | Content refresh scheduler | backend, scheduling | `ContentRefreshScheduler` — `@Scheduled` incremental re-crawl | #19 | done |
-| 011 | 011-content-search-service | Content search service | backend, search | `ContentSearchService` — `multiSearch` + highlighting facade | — | open |
+| 011 | 011-content-search-service | Content search service | backend, search | `ContentSearchService` — `multiSearch` + highlighting facade | #21 | done |
 | 012 | 012-content-mcp-tools | Content MCP tools | backend, mcp, api | `ContentMcpToolProvider` — the 4 MCP tools | — | open |
 | 013 | 013-scoped-search-key | Scoped search key | backend, search, security | Read-only scoped Meilisearch key for the content index | — | open |
 | 014 | 014-ops-robustness | Ops & robustness | backend, infrastructure, observability | robots.txt handling, fault tolerance, logging/metrics | — | open |
