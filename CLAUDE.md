@@ -56,7 +56,8 @@ extraction, Meilisearch indexing with scheduled refresh, and four MCP tools
 │   ├── MeilisearchContentIndexStore.java    # ContentIndexStore backed by MeilisearchClient
 │   ├── ContentBootstrapStep.java            # SearchIndexBootstrapStep: startup full reindex
 │   ├── ContentRefreshScheduler.java         # @Scheduled incremental re-crawl (cron, guarded)
-│   └── ContentSearchService.java            # read facade: multiSearch + Highlighter (+ result records)
+│   ├── ContentSearchService.java            # read facade: multiSearch + Highlighter (+ result records)
+│   └── ContentMcpToolProvider.java          # McpToolProvider: the 4 tools on /mcp
 ├── src/main/resources/application.yaml      # datasource, JPA, OAuth2, MCP, Meilisearch, content config
 ├── src/test/java/com/openelements/content/  # behavior tests (context, MCP enabled/disabled, search-down, jsoup)
 └── docs/
@@ -119,6 +120,15 @@ bootstrapping and to never overlap, with per-source fault isolation. On the read
 `multi-search` bodies (AND-combined `source`/`locale`/`categories`/`since` filters, `publishedDate:desc`
 tie-breaker, `Highlighter` boundary markers) and returns `SearchHit`s with HTML-safe snippets, plus
 `listPosts`, `getByUrlOrId`, and `categoryFacets`. Read-only; the scoped key comes in spec 013.
+`ContentMcpToolProvider` implements the library `McpToolProvider` (auto-aggregated by `McpServerConfig`)
+and exposes the four tools on `/mcp` — `search_content`, `list_posts`, `get_post`, `list_categories` —
+as thin adapters over `ContentSearchService`, using the house helpers for schemas/paging/error mapping
+(invalid-argument / not-found / temporary-unavailable during bootstrap).
+
+> **Build note:** `spring-services` is pinned to a specific snapshot timestamp
+> (`1.3.0-20260712.175350-13`) in `pom.xml`, not the floating `1.3.0-SNAPSHOT`, because a later
+> snapshot was published with a broken (dependency-less) POM. Keep it pinned until a released `1.3.0`
+> exists.
 
 > **Key gotcha:** the library ships no Spring Boot auto-configuration and couples MCP to a JPA
 > datasource, so `@Import({ McpConfiguration, SearchConfig })` alone does **not** boot. See

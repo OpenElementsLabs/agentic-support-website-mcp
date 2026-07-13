@@ -58,8 +58,8 @@ class ContentMcpApplicationTests {
     }
 
     @Test
-    @DisplayName("the /mcp server is exposed, advertises server name/version, and has no content tools yet")
-    void mcpEndpointIsExposedWithEmptyContentToolCatalog() {
+    @DisplayName("the /mcp server is exposed and advertises the configured server name/version")
+    void mcpEndpointIsExposed() {
         McpSyncServer mcpServer = context.getBean(McpSyncServer.class);
         assertThat(mcpServer).isNotNull();
 
@@ -70,7 +70,9 @@ class ContentMcpApplicationTests {
         assertThat(mcpProperties.serverName()).isEqualTo("Open Elements Content MCP");
         assertThat(mcpProperties.serverVersion()).isEqualTo("0.1.0");
 
-        // No content-specific tools are registered yet (they arrive in spec 012).
-        assertThat(context.getBeansOfType(McpToolProvider.class)).isEmpty();
+        // Drift (spec 012): the original skeleton asserted an empty McpToolProvider catalog; the
+        // content tools are now registered, so a ContentMcpToolProvider is present.
+        assertThat(context.getBeansOfType(McpToolProvider.class))
+            .containsKey("contentMcpToolProvider");
     }
 }
