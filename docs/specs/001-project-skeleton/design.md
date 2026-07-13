@@ -183,3 +183,14 @@ open-elements:
 - **Persistence of api-key/user data:** in-memory H2 resets on restart. If the library's api-key/user
   data ever needs to persist for this app, configure a real datasource (the config already supports
   overriding via `SPRING_DATASOURCE_*`). Revisit alongside spec 013 (auth).
+
+---
+
+## Drift Log
+
+### 2026-07-13 — Caused by spec `013-scoped-search-key`
+
+- **Affected element:** Configuration — `openelements.mcp.auth.api-key.enabled`
+- **Original design:** the skeleton set `api-key.enabled: false` in `application.yaml` so the app could be probed locally without a key ("real auth handled in spec 013").
+- **Current state:** api-key auth now defaults to **enabled** (`${MCP_API_KEY_AUTH_ENABLED:true}`); the `dev` profile (`application-dev.yaml`) disables it for local development. A `ScopedKeySpec` bean also scopes the runtime Meilisearch key to the content index.
+- **Reason:** spec 013 is the planned step that establishes the real auth/security posture; the skeleton's open default was a temporary dev convenience.

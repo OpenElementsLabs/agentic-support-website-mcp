@@ -38,7 +38,9 @@ openelements:
     server-version: "0.1.0"
     auth:
       api-key:
-        enabled: false        # dev only; real auth handled in spec 013
+        # Secure default: /mcp requires X-API-Key. Disable for local development via the `dev`
+        # profile (application-dev.yaml) or MCP_API_KEY_AUTH_ENABLED=false.
+        enabled: ${MCP_API_KEY_AUTH_ENABLED:true}
   meilisearch:
     enabled: true
     host: ${MEILISEARCH_HOST:http://localhost:7700}

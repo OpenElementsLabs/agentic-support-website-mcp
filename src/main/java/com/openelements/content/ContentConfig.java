@@ -2,6 +2,7 @@ package com.openelements.content;
 
 import com.openelements.spring.base.services.search.IndexSettings;
 import com.openelements.spring.base.services.search.MeilisearchProperties;
+import com.openelements.spring.base.services.search.ScopedKeySpec;
 import java.util.List;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -46,5 +47,34 @@ public class ContentConfig {
             List.of("title", "excerpt", "body"),
             List.of("source", "locale", "author", "categories", "publishedDate"),
             List.of("publishedDate"));
+    }
+
+    /**
+     * The Meilisearch actions this service performs on the content index. The runtime key is scoped
+     * to exactly these — a large reduction from the master key (one index, no admin/key-management,
+     * no other indexes) even though the process writes (bootstrap + scheduler) as well as reads.
+     */
+    static final List<String> CONTENT_INDEX_ACTIONS = List.of(
+        "search",
+        "documents.add", "documents.delete", "documents.get",
+        "settings.get", "settings.update",
+        "indexes.get", "indexes.create",
+        "tasks.get");
+
+    /**
+     * Scopes the runtime Meilisearch key to the content index with {@link #CONTENT_INDEX_ACTIONS}.
+     * The library's {@code MeilisearchScopedKeyInitializer} picks up this optional bean at startup,
+     * exchanges the master key for the scoped key, and switches the client to it; if the exchange
+     * fails (e.g. Meilisearch unreachable), it logs a warning and keeps the master key.
+     *
+     * @param meilisearchProperties library properties, used to resolve the prefixed index UID
+     * @return the scoped-key specification
+     */
+    @Bean
+    @ConditionalOnProperty(prefix = "openelements.meilisearch", name = "enabled", havingValue = "true")
+    ScopedKeySpec contentScopedKey(MeilisearchProperties meilisearchProperties) {
+        return new ScopedKeySpec(
+            List.of(meilisearchProperties.resolveIndex("content")),
+            CONTENT_INDEX_ACTIONS);
     }
 }
