@@ -47,3 +47,14 @@
 - **Given** `openelements.mcp.enabled=false`
 - **When** the app starts
 - **Then** no `/mcp` endpoint is exposed (the MCP server beans are not created)
+
+---
+
+## Drift Log
+
+### 2026-07-13 — Caused by spec `012-content-mcp-tools`
+
+- **Affected scenario:** /mcp endpoint is exposed
+- **Original behavior:** the `/mcp` server advertised the configured `server-name`/`server-version` with an **empty content-tool catalog** (no `McpToolProvider` beans registered).
+- **Current behavior:** spec 012 registers `ContentMcpToolProvider`, so the context now contains one `McpToolProvider` bean and `/mcp` advertises the four content tools. The skeleton test `ContentMcpApplicationTests` was updated to assert the provider is present rather than that the catalog is empty.
+- **Reason:** spec 012 (`ContentMcpToolProvider`) is the planned step that adds the content tools; the skeleton's "empty catalog" was only ever a temporary property of the pre-tools state.
