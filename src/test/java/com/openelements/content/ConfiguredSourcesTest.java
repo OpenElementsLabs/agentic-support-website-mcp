@@ -56,4 +56,16 @@ class ConfiguredSourcesTest {
         assertThat(support.contentSelector()).isEqualTo("body");
         assertThat(support.contentExclude()).contains("nav", "header", "footer", ".cookie-banner");
     }
+
+    @Test
+    @DisplayName("the example git source binds as a GIT source (disabled by default)")
+    void gitSourceIsConfigured() {
+        ContentSource git = sourcesById().get("oe-website-markdown");
+        assertThat(git.type()).isEqualTo(SourceType.GIT);
+        assertThat(git.enabled()).isFalse();
+        assertThat(git.git()).isNotNull();
+        assertThat(git.git().repo()).isEqualTo("OpenElements/open-elements-website");
+        assertThat(git.git().ref()).isEqualTo("main");
+        assertThat(git.git().paths()).contains("content/posts/**/*.md");
+    }
 }

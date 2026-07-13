@@ -82,3 +82,16 @@ open-elements:
         content-selector: "body"
         content-exclude: [ "nav", "header", "footer", ".cookie-banner", "aside" ]
         enabled: true
+      # Example Git/Markdown source (spec 016). Disabled by default: enable it and supply a read-only,
+      # repo-scoped token via GITHUB_TOKEN_OE_WEBSITE (never commit a token). Higher-fidelity content
+      # than HTML scraping for repos we own.
+      - id: oe-website-markdown
+        type: git
+        base-url: https://open-elements.com
+        enabled: false
+        git:
+          provider: github
+          repo: OpenElements/open-elements-website
+          ref: main
+          paths: [ "content/posts/**/*.md", "content/posts/**/*.mdx" ]
+          token: ${GITHUB_TOKEN_OE_WEBSITE:}

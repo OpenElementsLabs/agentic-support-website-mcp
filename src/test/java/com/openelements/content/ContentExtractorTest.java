@@ -19,7 +19,7 @@ class ContentExtractorTest {
     private static ContentSource source(String contentSelector, List<String> contentExclude) {
         return new ContentSource(
             "test", SourceType.WEBSITE, "https://ex.com",
-            List.of(), List.of("/**"), List.of(), contentSelector, contentExclude, true);
+            List.of(), List.of("/**"), List.of(), contentSelector, contentExclude, true, null);
     }
 
     private ExtractedContent extract(String contentSelector, List<String> exclude, String html) {

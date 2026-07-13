@@ -24,6 +24,7 @@ import java.util.List;
  * @param contentSelector CSS selector for the main content element (applied in spec 006)
  * @param contentExclude CSS selectors removed before text extraction (applied in spec 006)
  * @param enabled        whether the source is active; consumers in later specs skip disabled sources
+ * @param git            Git configuration; present only for {@link SourceType#GIT} sources (spec 016)
  */
 public record ContentSource(
     String id,
@@ -34,7 +35,8 @@ public record ContentSource(
     List<String> urlExclude,
     String contentSelector,
     List<String> contentExclude,
-    boolean enabled
+    boolean enabled,
+    GitConfig git
 ) {
 
     /** The include pattern applied when a source declares no {@code urlInclude}: match everything. */

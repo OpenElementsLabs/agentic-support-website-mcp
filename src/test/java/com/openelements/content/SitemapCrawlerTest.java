@@ -41,7 +41,7 @@ class SitemapCrawlerTest {
     private static ContentSource source(String baseUrl, List<String> sitemaps,
                                         List<String> include, List<String> exclude) {
         return new ContentSource(
-            "test", SourceType.WEBSITE, baseUrl, sitemaps, include, exclude, "article", List.of(), true);
+            "test", SourceType.WEBSITE, baseUrl, sitemaps, include, exclude, "article", List.of(), true, null);
     }
 
     private void stubXml(String url, String body) {

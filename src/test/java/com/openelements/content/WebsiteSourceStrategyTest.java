@@ -53,7 +53,7 @@ class WebsiteSourceStrategyTest {
     private static ContentSource source(List<String> sitemaps) {
         return new ContentSource(
             "open-elements", SourceType.WEBSITE, "https://ex.com",
-            sitemaps, List.of("/**"), List.of(), "article", List.of(), true);
+            sitemaps, List.of("/**"), List.of(), "article", List.of(), true, null);
     }
 
     private static DiscoveredItem item(String lastmod) {

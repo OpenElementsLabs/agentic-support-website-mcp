@@ -15,7 +15,7 @@ class SourceStrategyRegistryTest {
 
     private static ContentSource source(SourceType type) {
         return new ContentSource(
-            "s", type, "https://ex.com", List.of(), List.of("/**"), List.of(), "article", List.of(), true);
+            "s", type, "https://ex.com", List.of(), List.of("/**"), List.of(), "article", List.of(), true, null);
     }
 
     private static ContentSourceStrategy strategyFor(SourceType type) {

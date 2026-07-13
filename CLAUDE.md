@@ -62,6 +62,7 @@ search enhancements.
 │   ├── ContentSearchService.java            # read facade: multiSearch + Highlighter (+ result records)
 │   ├── ContentMcpToolProvider.java          # McpToolProvider: the 4 tools on /mcp
 │   ├── RobotsPolicy.java / HttpRobotsPolicy.java  # robots.txt allow/disallow + Crawl-delay
+│   └── GitSourceStrategy.java / GitConfig.java    # type: git — GitHub Markdown source (spec 016)
 ├── src/main/resources/application.yaml      # datasource, JPA, OAuth2, MCP, Meilisearch, content config
 ├── src/test/java/com/openelements/content/  # behavior tests (context, MCP enabled/disabled, search-down, jsoup)
 └── docs/
@@ -106,8 +107,12 @@ categories/preview image/locale) from OpenGraph/Article `<meta>`, JSON-LD, and `
 `ContentSourceStrategy` is the per-source-type seam that composes these stages: `WebsiteSourceStrategy`
 wires crawler → fetcher → extractor and maps the fetch result to a `FetchOutcome`
 (`INDEX`/`UNCHANGED`/`DELETE`/`SKIP`); `SourceStrategyRegistry` selects the strategy by
-`ContentSource.type()`, so a future `git` strategy (spec 016) plugs in as a bean with no indexer
-changes. `ContentIndexer` is the orchestration engine: discover → diff discovered `lastmod` against
+`ContentSource.type()`, so the `git` strategy (spec 016) plugs in as a bean with no indexer
+changes. `GitSourceStrategy` (`SourceType.GIT`, `GitConfig`) indexes Markdown from GitHub repos:
+Trees-API discovery filtered by `paths` globs (blob SHA = change marker), raw-content fetch with a
+server-side bearer token, YAML-frontmatter + Markdown extraction (Hugo shortcodes cleaned), path →
+canonical-URL mapping, and locale from the filename suffix — producing the same `ContentDocument` as
+websites, so downstream is unchanged. `ContentIndexer` is the orchestration engine: discover → diff discovered `lastmod` against
 the state read from the index (`ContentIndexStore`; the index *is* the state) → fetch only new/changed
 items via the strategy → batch-upsert, and delete documents that 404 or vanished from discovery.
 `MeilisearchContentIndexStore` implements the store over `MeilisearchClient` (paged `multiSearch` to

@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 class ContentIndexerTest {
 
     private static final ContentSource SOURCE = new ContentSource(
-        "oe", SourceType.WEBSITE, "https://ex.com", List.of(), List.of("/**"), List.of(), "article", List.of(), true);
+        "oe", SourceType.WEBSITE, "https://ex.com", List.of(), List.of("/**"), List.of(), "article", List.of(), true, null);
 
     private final InMemoryContentIndexStore store = new InMemoryContentIndexStore();
     private final StubStrategy strategy = new StubStrategy();

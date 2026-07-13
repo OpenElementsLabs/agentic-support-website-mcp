@@ -41,7 +41,7 @@ class ContentRefreshSchedulerTest {
 
     private static ContentSource source(String id, boolean enabled) {
         return new ContentSource(
-            id, SourceType.WEBSITE, "https://ex.com", List.of(), List.of("/**"), List.of(), "article", List.of(), enabled);
+            id, SourceType.WEBSITE, "https://ex.com", List.of(), List.of("/**"), List.of(), "article", List.of(), enabled, null);
     }
 
     private static ContentSourceProperties properties(boolean enabled, ContentSource... sources) {

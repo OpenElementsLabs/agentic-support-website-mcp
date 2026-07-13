@@ -18,7 +18,7 @@ class UrlMatcherTest {
     private static ContentSource source(List<String> include, List<String> exclude) {
         return new ContentSource(
             "test", SourceType.WEBSITE, "https://example.com",
-            List.of(), include, exclude, "article", List.of(), true);
+            List.of(), include, exclude, "article", List.of(), true, null);
     }
 
     @Test
@@ -57,7 +57,7 @@ class UrlMatcherTest {
         // urlInclude omitted -> ContentSource defaults it to ["/**"].
         ContentSource source = new ContentSource(
             "test", SourceType.WEBSITE, "https://example.com",
-            List.of(), null, List.of("/private/**"), "article", List.of(), true);
+            List.of(), null, List.of("/private/**"), "article", List.of(), true, null);
 
         assertThat(matcher.matches(source, "/anything/at/all")).isTrue();
         assertThat(matcher.matches(source, "/private/secret")).isFalse();
