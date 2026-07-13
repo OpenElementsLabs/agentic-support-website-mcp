@@ -20,6 +20,6 @@ roadmap step, to be implemented sequentially (each builds on the previous).
 | 012 | 012-content-mcp-tools | Content MCP tools | backend, mcp, api | `ContentMcpToolProvider` — the 4 MCP tools | #23 | done |
 | 013 | 013-scoped-search-key | Scoped search key | backend, search, security | Read-only scoped Meilisearch key for the content index | #25 | done |
 | 014 | 014-ops-robustness | Ops & robustness | backend, infrastructure, observability | robots.txt handling, fault tolerance, logging/metrics | #27 | done |
-| 015 | 015-additional-web-sources | Additional web sources | backend, configuration | hiero.org/blog + Support & Care as config-only sources | #29 | in progress |
+| 015 | 015-additional-web-sources | Additional web sources | backend, configuration | hiero.org/blog + Support & Care as config-only sources | #29 | done |
 | 016 | 016-git-markdown-source | Git markdown source | backend, architecture, security | `type: git` source + `GitSourceStrategy` (GitHub Markdown) | — | open |
 | 017 | 017-search-enhancements | Search enhancements | backend, search | Facets, synonyms/stop words, optional semantic search | — | open |
