@@ -123,7 +123,11 @@ tie-breaker, `Highlighter` boundary markers) and returns `SearchHit`s with HTML-
 `ContentMcpToolProvider` implements the library `McpToolProvider` (auto-aggregated by `McpServerConfig`)
 and exposes the four tools on `/mcp` — `search_content`, `list_posts`, `get_post`, `list_categories` —
 as thin adapters over `ContentSearchService`, using the house helpers for schemas/paging/error mapping
-(invalid-argument / not-found / temporary-unavailable during bootstrap).
+(invalid-argument / not-found / temporary-unavailable during bootstrap). Security (spec 013):
+`ContentConfig` registers a `ScopedKeySpec` bean so the library exchanges the master key for one scoped
+to the content index with the minimal actions the service uses (it both reads and writes); MCP api-key
+auth on `/mcp` defaults to **enabled** (`MCP_API_KEY_AUTH_ENABLED`), with the `dev` profile
+(`application-dev.yaml`) disabling it for local use.
 
 > **Build note:** `spring-services` is pinned to a specific snapshot timestamp
 > (`1.3.0-20260712.175350-13`) in `pom.xml`, not the floating `1.3.0-SNAPSHOT`, because a later

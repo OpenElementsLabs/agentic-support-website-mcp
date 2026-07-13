@@ -42,6 +42,13 @@ java -jar target/content-mcp-0.1.0-SNAPSHOT.jar
 The app starts on port `8080` and exposes `/mcp`. It connects to Meilisearch at
 `http://localhost:7700` by default (override via environment variables below).
 
+By default `/mcp` requires an `X-API-Key`. For local development, run with the `dev` profile to
+allow unauthenticated access:
+
+```bash
+java -jar target/content-mcp-0.1.0-SNAPSHOT.jar --spring.profiles.active=dev
+```
+
 ## Test
 
 ```bash
@@ -62,14 +69,16 @@ Common overrides (all via environment variables):
 | `SPRING_DATASOURCE_USERNAME` | `sa` | Datasource user |
 | `SPRING_DATASOURCE_PASSWORD` | *(empty)* | Datasource password |
 | `OAUTH2_JWK_SET_URI` | placeholder | JWK set URI for the library's OAuth2 resource server |
+| `MCP_API_KEY_AUTH_ENABLED` | `true` | Require `X-API-Key` on `/mcp` (set `false` or use the `dev` profile locally) |
 
 ### Notes on the wiring
 
 `spring-services` couples its MCP server to a JPA-backed api-key/user stack and depends on
 `spring-boot-starter-data-jpa` non-optionally, so a datasource is mandatory. This app supplies
 an **embedded H2** database that backs only those library tables — the content pipeline itself
-keeps no relational state (its store is Meilisearch). The `/mcp` endpoint is secured by the
-library defaults; real scoped-key authentication is added in a later spec (013). See
+keeps no relational state (its store is Meilisearch). The `/mcp` endpoint requires an `X-API-Key` by
+default (disable locally with the `dev` profile), and the runtime Meilisearch key is scoped to the
+content index (spec 013). See
 [`docs/specs/001-project-skeleton/design.md`](docs/specs/001-project-skeleton/design.md) for the
 full rationale.
 

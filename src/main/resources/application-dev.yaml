@@ -1,0 +1,8 @@
+# Local development profile: run with -Dspring.profiles.active=dev (or SPRING_PROFILES_ACTIVE=dev).
+# Convenience only — never use in a shared or production deployment.
+openelements:
+  mcp:
+    auth:
+      api-key:
+        # Allow unauthenticated local calls to /mcp so the endpoint can be probed without a key.
+        enabled: false
