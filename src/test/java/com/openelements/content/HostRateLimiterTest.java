@@ -2,6 +2,7 @@ package com.openelements.content;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -57,5 +58,17 @@ class HostRateLimiterTest {
         limiter.acquire("a");
 
         assertThat(sleeps).isEmpty();
+    }
+
+    @Test
+    @DisplayName("a crawl-delay tightens the effective interval beyond the configured rate")
+    void crawlDelayTightensInterval() {
+        HostRateLimiter limiter = new HostRateLimiter(2.0, nowNanos::get, sleeper); // base 500 ms
+
+        limiter.acquire("a", Duration.ofSeconds(5)); // first request: no wait
+        limiter.acquire("a", Duration.ofSeconds(5));
+
+        // 5 s crawl-delay is stricter than the 500 ms configured interval.
+        assertThat(sleeps).containsExactly(5000L);
     }
 }

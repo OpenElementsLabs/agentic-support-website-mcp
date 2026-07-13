@@ -1,5 +1,6 @@
 package com.openelements.content;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.LongConsumer;
@@ -38,7 +39,20 @@ public class HostRateLimiter {
      * @param host the target host (an empty or {@code null} host shares a single bucket)
      */
     public void acquire(String host) {
-        if (minIntervalNanos == 0L) {
+        acquire(host, Duration.ZERO);
+    }
+
+    /**
+     * Like {@link #acquire(String)}, but enforces at least {@code minInterval} between requests to the
+     * host — used to honor a {@code robots.txt} {@code Crawl-delay}, taking the stricter of the
+     * configured rate and the crawl delay.
+     *
+     * @param host        the target host
+     * @param minInterval a minimum interval to enforce (e.g. from {@code Crawl-delay}); may be zero
+     */
+    public void acquire(String host, Duration minInterval) {
+        long effectiveIntervalNanos = Math.max(minIntervalNanos, minInterval == null ? 0L : minInterval.toNanos());
+        if (effectiveIntervalNanos == 0L) {
             return;
         }
         String key = host == null ? "" : host;
@@ -47,7 +61,7 @@ public class HostRateLimiter {
             long now = clockNanos.getAsLong();
             long start = Math.max(now, nextAllowedNanos.getOrDefault(key, now));
             waitNanos = start - now;
-            nextAllowedNanos.put(key, start + minIntervalNanos);
+            nextAllowedNanos.put(key, start + effectiveIntervalNanos);
         }
         if (waitNanos > 0) {
             sleeperMillis.accept(Math.max(1, Math.round(waitNanos / 1_000_000.0)));

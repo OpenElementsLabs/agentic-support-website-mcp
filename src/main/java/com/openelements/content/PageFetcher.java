@@ -36,20 +36,22 @@ public class PageFetcher {
     private final String userAgent;
     private final long maxBodyBytes;
     private final HostRateLimiter rateLimiter;
+    private final RobotsPolicy robotsPolicy;
     private final LongConsumer backoffSleeper;
 
     @Autowired
     public PageFetcher(RestClient contentRestClient, ContentSourceProperties properties,
-                       HostRateLimiter rateLimiter) {
-        this(contentRestClient, properties, rateLimiter, PageFetcher::sleep);
+                       HostRateLimiter rateLimiter, RobotsPolicy robotsPolicy) {
+        this(contentRestClient, properties, rateLimiter, robotsPolicy, PageFetcher::sleep);
     }
 
     PageFetcher(RestClient restClient, ContentSourceProperties properties,
-                HostRateLimiter rateLimiter, LongConsumer backoffSleeper) {
+                HostRateLimiter rateLimiter, RobotsPolicy robotsPolicy, LongConsumer backoffSleeper) {
         this.restClient = restClient;
         this.userAgent = properties.userAgent();
         this.maxBodyBytes = properties.maxBodyBytes().toBytes();
         this.rateLimiter = rateLimiter;
+        this.robotsPolicy = robotsPolicy;
         this.backoffSleeper = backoffSleeper;
     }
 
@@ -83,7 +85,9 @@ public class PageFetcher {
     }
 
     private FetchResult attemptOnce(String url, String priorEtag, String priorLastmod) {
-        rateLimiter.acquire(hostOf(url));
+        String host = hostOf(url);
+        // Honor robots.txt Crawl-delay for this host, taking the stricter of it and the configured rate.
+        rateLimiter.acquire(host, robotsPolicy.crawlDelay(host));
         return restClient.get()
             .uri(URI.create(url))
             .header(HttpHeaders.USER_AGENT, userAgent)

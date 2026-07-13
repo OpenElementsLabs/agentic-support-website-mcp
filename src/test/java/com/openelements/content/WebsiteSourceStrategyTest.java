@@ -39,12 +39,12 @@ class WebsiteSourceStrategyTest {
 
         RestClient.Builder fetchBuilder = RestClient.builder();
         fetchServer = MockRestServiceServer.bindTo(fetchBuilder).ignoreExpectOrder(true).build();
-        PageFetcher fetcher = new PageFetcher(
-            fetchBuilder.build(), properties, new HostRateLimiter(0, () -> 0L, millis -> { }), millis -> { });
+        PageFetcher fetcher = new PageFetcher(fetchBuilder.build(), properties,
+            new HostRateLimiter(0, () -> 0L, millis -> { }), RobotsPolicy.ALLOW_ALL, millis -> { });
 
         RestClient.Builder crawlBuilder = RestClient.builder();
         crawlServer = MockRestServiceServer.bindTo(crawlBuilder).ignoreExpectOrder(true).build();
-        SitemapCrawler crawler = new SitemapCrawler(crawlBuilder, new UrlMatcher());
+        SitemapCrawler crawler = new SitemapCrawler(crawlBuilder, new UrlMatcher(), RobotsPolicy.ALLOW_ALL);
 
         ContentExtractor extractor = new ContentExtractor(new ContentLocaleResolver(), new ObjectMapper());
         strategy = new WebsiteSourceStrategy(crawler, fetcher, extractor);
