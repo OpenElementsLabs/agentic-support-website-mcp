@@ -48,7 +48,7 @@ class PageFetcherTest {
         ContentSourceProperties properties = new ContentSourceProperties(
             true, null, USER_AGENT, 2.0, Duration.ofSeconds(10), DataSize.ofBytes(maxBytes), List.of());
         HostRateLimiter noThrottle = new HostRateLimiter(0, () -> 0L, millis -> { });
-        return new PageFetcher(client, properties, noThrottle, backoffs::add);
+        return new PageFetcher(client, properties, noThrottle, RobotsPolicy.ALLOW_ALL, backoffs::add);
     }
 
     @Test

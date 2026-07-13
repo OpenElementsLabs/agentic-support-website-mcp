@@ -10,11 +10,13 @@ The **Open Elements Content MCP** is an MCP server that will crawl, index, and m
 searchable the content (primarily blog posts) of Open-Elements-adjacent websites, exposing
 that content to AI agents over the standard `/mcp` streamable-HTTP endpoint.
 
-Current state: **project skeleton** (spec `001-project-skeleton`). The app boots and exposes
-`/mcp` with no content-specific tools yet. Planned capabilities (see
-[`docs/roadmap.md`](docs/roadmap.md)): sitemap crawling, HTTP page fetching, jsoup content
-extraction, Meilisearch indexing with scheduled refresh, and four MCP tools
-(`search_content`, `list_posts`, `get_post`, `list_categories`).
+Current state: **Phase 1 complete** (specs 001–014). The app crawls configured website sources
+(sitemap discovery + bounded fallback, robots.txt-aware), fetches politely (conditional GET, per-host
+rate limit, retries), extracts content/metadata with jsoup, indexes into Meilisearch (startup
+bootstrap + scheduled incremental refresh), and exposes four MCP tools on `/mcp` (`search_content`,
+`list_posts`, `get_post`, `list_categories`) backed by a scoped Meilisearch key. Phase 2+ (see
+[`docs/roadmap.md`](docs/roadmap.md)): additional website sources, Git/Markdown sources, and search
+enhancements.
 
 ### Tech Stack
 
@@ -57,7 +59,8 @@ extraction, Meilisearch indexing with scheduled refresh, and four MCP tools
 │   ├── ContentBootstrapStep.java            # SearchIndexBootstrapStep: startup full reindex
 │   ├── ContentRefreshScheduler.java         # @Scheduled incremental re-crawl (cron, guarded)
 │   ├── ContentSearchService.java            # read facade: multiSearch + Highlighter (+ result records)
-│   └── ContentMcpToolProvider.java          # McpToolProvider: the 4 tools on /mcp
+│   ├── ContentMcpToolProvider.java          # McpToolProvider: the 4 tools on /mcp
+│   ├── RobotsPolicy.java / HttpRobotsPolicy.java  # robots.txt allow/disallow + Crawl-delay
 ├── src/main/resources/application.yaml      # datasource, JPA, OAuth2, MCP, Meilisearch, content config
 ├── src/test/java/com/openelements/content/  # behavior tests (context, MCP enabled/disabled, search-down, jsoup)
 └── docs/
@@ -127,7 +130,11 @@ as thin adapters over `ContentSearchService`, using the house helpers for schema
 `ContentConfig` registers a `ScopedKeySpec` bean so the library exchanges the master key for one scoped
 to the content index with the minimal actions the service uses (it both reads and writes); MCP api-key
 auth on `/mcp` defaults to **enabled** (`MCP_API_KEY_AUTH_ENABLED`), with the `dev` profile
-(`application-dev.yaml`) disabling it for local use.
+(`application-dev.yaml`) disabling it for local use. Robustness (spec 014): `HttpRobotsPolicy` honors
+each host's `robots.txt` (cached per host) — `SitemapCrawler` drops disallowed URLs and `PageFetcher`
+respects `Crawl-delay` via the per-host rate limiter. The pipeline is fault-tolerant end-to-end (one
+failing page/source never aborts a run) and logs an `IndexReport` per source; Micrometer metrics are
+deferred until a metrics backend is wired.
 
 > **Build note:** `spring-services` is pinned to a specific snapshot timestamp
 > (`1.3.0-20260712.175350-13`) in `pom.xml`, not the floating `1.3.0-SNAPSHOT`, because a later

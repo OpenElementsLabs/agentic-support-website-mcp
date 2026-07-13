@@ -48,10 +48,12 @@ public class SitemapCrawler {
 
     private final RestClient restClient;
     private final UrlMatcher urlMatcher;
+    private final RobotsPolicy robotsPolicy;
 
-    public SitemapCrawler(RestClient.Builder restClientBuilder, UrlMatcher urlMatcher) {
+    public SitemapCrawler(RestClient.Builder restClientBuilder, UrlMatcher urlMatcher, RobotsPolicy robotsPolicy) {
         this.restClient = restClientBuilder.build();
         this.urlMatcher = urlMatcher;
+        this.robotsPolicy = robotsPolicy;
     }
 
     /**
@@ -74,7 +76,16 @@ public class SitemapCrawler {
 
         return collected.values().stream()
             .filter(item -> urlMatcher.matches(source, item.url()))
+            .filter(this::allowedByRobots)
             .toList();
+    }
+
+    private boolean allowedByRobots(DiscoveredItem item) {
+        if (robotsPolicy.isAllowed(item.url())) {
+            return true;
+        }
+        log.info("Skipping {} — disallowed by robots.txt", item.url());
+        return false;
     }
 
     private void collectSitemap(String sitemapUrl, Map<String, DiscoveredItem> collected,
@@ -95,9 +106,16 @@ public class SitemapCrawler {
             if (!childSitemaps.isEmpty()) {
                 for (Element loc : childSitemaps) {
                     String childUrl = loc.text().trim();
-                    if (!childUrl.isEmpty()) {
-                        collectSitemap(childUrl, collected, visitedSitemaps, depth + 1);
+                    if (childUrl.isEmpty()) {
+                        continue;
                     }
+                    // Only follow child sitemaps on the same host, so a sitemap index cannot point the
+                    // crawler at arbitrary (e.g. internal) hosts.
+                    if (!hostOf(childUrl).equalsIgnoreCase(hostOf(sitemapUrl))) {
+                        log.warn("Skipping off-host child sitemap {} (parent {})", childUrl, sitemapUrl);
+                        continue;
+                    }
+                    collectSitemap(childUrl, collected, visitedSitemaps, depth + 1);
                 }
                 return;
             }
@@ -142,7 +160,7 @@ public class SitemapCrawler {
                 if (link.isEmpty() || !host.equalsIgnoreCase(hostOf(link))) {
                     continue;
                 }
-                if (urlMatcher.matches(source, link)) {
+                if (urlMatcher.matches(source, link) && allowedByRobots(new DiscoveredItem(link, null))) {
                     results.putIfAbsent(link, new DiscoveredItem(link, null));
                 }
                 if (entry.depth() < MAX_FALLBACK_DEPTH && !visited.contains(link)) {
