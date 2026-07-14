@@ -57,6 +57,7 @@ public class ContentSearchService {
         query0.put("highlightPreTag", Highlighter.PRE_MARK);
         query0.put("highlightPostTag", Highlighter.POST_MARK);
         query0.put("showRankingScore", true);
+        query0.put("facets", List.of("categories"));
         return parseHits(client.multiSearch(wrap(query0)));
     }
 
@@ -170,7 +171,7 @@ public class ContentSearchService {
         for (JsonNode hit : result.path("hits")) {
             hits.add(toHit(hit));
         }
-        return new SearchHits(hits, result.path("estimatedTotalHits").asLong(0));
+        return new SearchHits(hits, result.path("estimatedTotalHits").asLong(0), categoryFacetsOf(result));
     }
 
     private static SearchHit toHit(JsonNode hit) {
@@ -184,9 +185,10 @@ public class ContentSearchService {
 
     static List<CategoryCount> parseFacets(JsonNode response) {
         JsonNode result = firstResult(response);
-        if (result == null) {
-            return List.of();
-        }
+        return result == null ? List.of() : categoryFacetsOf(result);
+    }
+
+    private static List<CategoryCount> categoryFacetsOf(JsonNode result) {
         List<CategoryCount> counts = new ArrayList<>();
         result.path("facetDistribution").path("categories").fields()
             .forEachRemaining(entry -> counts.add(new CategoryCount(entry.getKey(), entry.getValue().asLong(0))));
