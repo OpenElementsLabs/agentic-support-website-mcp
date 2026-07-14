@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Configuration;
  * {@code @Bean} definitions (indexer, search service, MCP tools).
  */
 @Configuration
-@EnableConfigurationProperties(ContentSourceProperties.class)
+@EnableConfigurationProperties({ContentSourceProperties.class, ContentSearchProperties.class})
 public class ContentConfig {
 
     /**

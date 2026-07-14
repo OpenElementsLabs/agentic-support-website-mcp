@@ -16,8 +16,9 @@ rate limit, retries), extracts content/metadata with jsoup, indexes into Meilise
 bootstrap + scheduled incremental refresh), and exposes four MCP tools on `/mcp` (`search_content`,
 `list_posts`, `get_post`, `list_categories`) backed by a scoped Meilisearch key. Three website sources are
 configured (spec 015): `open-elements` (`/posts/**`), `hiero` (`/blog/**`), and `support-and-care`
-(`/en/support-care*`). Phase 3+ (see [`docs/roadmap.md`](docs/roadmap.md)): Git/Markdown sources and
-search enhancements.
+(`/en/support-care*`), plus a disabled example `git` (Markdown) source (spec 016). Search supports
+optional synonyms/stop-words and category facets (spec 017). **The full roadmap (specs 001–017) is
+implemented.** The one intentionally-deferred item is semantic/embeddings search (a future spec).
 
 ### Tech Stack
 
@@ -62,7 +63,9 @@ search enhancements.
 │   ├── ContentSearchService.java            # read facade: multiSearch + Highlighter (+ result records)
 │   ├── ContentMcpToolProvider.java          # McpToolProvider: the 4 tools on /mcp
 │   ├── RobotsPolicy.java / HttpRobotsPolicy.java  # robots.txt allow/disallow + Crawl-delay
-│   └── GitSourceStrategy.java / GitConfig.java    # type: git — GitHub Markdown source (spec 016)
+│   ├── GitSourceStrategy.java / GitConfig.java    # type: git — GitHub Markdown source (spec 016)
+│   ├── ContentSearchProperties.java         # optional synonyms/stop-words config (spec 017)
+│   └── SearchSettingsInitializer.java       # pushes synonyms/stop-words via updateSettings
 ├── src/main/resources/application.yaml      # datasource, JPA, OAuth2, MCP, Meilisearch, content config
 ├── src/test/java/com/openelements/content/  # behavior tests (context, MCP enabled/disabled, search-down, jsoup)
 └── docs/
@@ -112,7 +115,11 @@ changes. `GitSourceStrategy` (`SourceType.GIT`, `GitConfig`) indexes Markdown fr
 Trees-API discovery filtered by `paths` globs (blob SHA = change marker), raw-content fetch with a
 server-side bearer token, YAML-frontmatter + Markdown extraction (Hugo shortcodes cleaned), path →
 canonical-URL mapping, and locale from the filename suffix — producing the same `ContentDocument` as
-websites, so downstream is unchanged. `ContentIndexer` is the orchestration engine: discover → diff discovered `lastmod` against
+websites, so downstream is unchanged. Search enhancements (spec 017): `ContentSearchProperties`
+(`open-elements.content.search.synonyms`/`stop-words`) are pushed to the index at startup by
+`SearchSettingsInitializer` via `updateSettings` (no reindex; no-op when unset), and `search_content`
+returns category facet counts (`SearchHits.facets`). Semantic/embeddings search is intentionally
+deferred to a future spec. `ContentIndexer` is the orchestration engine: discover → diff discovered `lastmod` against
 the state read from the index (`ContentIndexStore`; the index *is* the state) → fetch only new/changed
 items via the strategy → batch-upsert, and delete documents that 404 or vanished from discovery.
 `MeilisearchContentIndexStore` implements the store over `MeilisearchClient` (paged `multiSearch` to

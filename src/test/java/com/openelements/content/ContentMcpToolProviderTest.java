@@ -140,7 +140,7 @@ class ContentMcpToolProviderTest {
     }
 
     private void searchContentResult() {
-        searchService.hits = new SearchHits(List.of(new SearchHit("T", "u", "2026-01-01", "snip", 0.9)), 1);
+        searchService.hits = new SearchHits(List.of(new SearchHit("T", "u", "2026-01-01", "snip", 0.9)), 1, List.of());
     }
 
     private static ContentDocument document() {

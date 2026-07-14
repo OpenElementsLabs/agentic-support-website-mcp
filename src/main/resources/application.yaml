@@ -55,6 +55,12 @@ open-elements:
     rate-limit-per-host: 2
     request-timeout: 10s
     max-body-bytes: 5MB
+    # Optional search tuning (spec 017), applied via updateSettings at startup (no reindex).
+    # Empty by default. Example:
+    # search:
+    #   synonyms:
+    #     ai: [ "artificial intelligence", "machine learning" ]
+    #   stop-words: [ "the", "a", "an" ]
     sources:
       - id: open-elements
         type: website

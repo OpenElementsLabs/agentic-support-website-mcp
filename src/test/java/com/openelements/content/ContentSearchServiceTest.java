@@ -168,6 +168,22 @@ class ContentSearchServiceTest {
             assertThat(query).containsEntry("filter", "source = \"open-elements\"");
             assertThat(query).containsEntry("limit", 0);
         }
+
+        @Test
+        @DisplayName("search requests category facets and returns their counts alongside the hits")
+        void searchSurfacesFacets() {
+            JsonNode response = parse("""
+                {"results":[{"estimatedTotalHits":5,"hits":[],
+                  "facetDistribution":{"categories":{"ai":3,"web3":2}}}]}""");
+            CapturingClient client = new CapturingClient(response);
+            ContentSearchService service = new ContentSearchService(client, properties());
+
+            SearchHits hits = service.search("x", ContentFilters.none(), 0, 10);
+
+            assertThat(firstQuery(client.capturedBody)).containsEntry("facets", List.of("categories"));
+            assertThat(hits.facets()).containsExactlyInAnyOrder(
+                new CategoryCount("ai", 3), new CategoryCount("web3", 2));
+        }
     }
 
     @Nested
